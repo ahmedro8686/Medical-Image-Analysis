@@ -1,6 +1,7 @@
-streamlit==1.49.1
-torch==2.8.0
-torchvision==0.23.0
-pillow>=9.5,<10
+streamlit
+torch
+torchvision
+Pillow
 numpy
-opencv-python-headless
+opencv-python
+matplotlib
