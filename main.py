@@ -5,33 +5,33 @@ from utils import preprocess_image, overlay_heatmap
 import torch
 
 # ---------------------------
-# إعداد الصفحة
+# Page setup
 # ---------------------------
 st.set_page_config(
-    page_title="تحليل الصور الطبية",
+    page_title="Medical Image Analysis",
     page_icon="🏥",
     layout="wide"
 )
 
-st.title("🏥 نظام التحليل الذكي للصور الشعاعية")
-st.markdown("### الكشف المبكر عن الأمراض باستخدام الذكاء الاصطناعي")
+st.title("🏥 Intelligent X-Ray Analysis System")
+st.markdown("### Early detection of diseases using AI")
 
 # ---------------------------
-# الشريط الجانبي
+# Sidebar
 # ---------------------------
 with st.sidebar:
-    st.header("معلومات المشروع")
+    st.header("Project Info")
     st.info("""
-    مشروع CS50:
-    - تحليل صور الأشعة السينية
-    - الكشف عن الأمراض التنفسية
-    - عرض مناطق الاهتمام
-    - نسبة ثقة في النتائج
+    CS50 Project:
+    - X-ray image analysis
+    - Detection of respiratory diseases
+    - Highlight areas of interest
+    - Confidence score
     """)
-    st.warning("⚠️ هذا نظام تجريبي ولا يغني عن تشخيص الطبيب")
+    st.warning("⚠️ This is an experimental system and does not replace a doctor's diagnosis")
 
 # ---------------------------
-# تحميل النموذج (مخزن في cache)
+# Load model (cached)
 # ---------------------------
 @st.cache_data(show_spinner=True)
 def get_model():
@@ -41,61 +41,61 @@ def get_model():
 model = get_model()
 
 if model is None:
-    st.error("❌ تعذر تحميل النموذج. يرجى التحقق من الملفات")
+    st.error("❌ Failed to load the model. Please check the files")
     st.stop()
 
 # ---------------------------
-# رفع الصورة
+# Upload image
 # ---------------------------
-st.header("📤 رفع الصورة الشعاعية")
+st.header("📤 Upload X-Ray Image")
 uploaded_file = st.file_uploader(
-    "اختر صورة أشعة سينية (PNG, JPG, JPEG)",
+    "Select an X-ray image (PNG, JPG, JPEG)",
     type=["png", "jpg", "jpeg"]
 )
 
 if uploaded_file:
     image = preprocess_image(uploaded_file)
     if image is None:
-        st.error("❌ تعذر معالجة الصورة. يرجى التحقق من الملف")
+        st.error("❌ Failed to process the image. Please check the file")
         st.stop()
 
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader("📷 الصورة الأصلية")
-        st.image(image, caption="الصورة الأصلية", use_column_width=True)
+        st.subheader("📷 Original Image")
+        st.image(image, caption="Original Image", use_column_width=True)
 
     with col2:
-        st.subheader("📊 نتائج التحليل")
+        st.subheader("📊 Analysis Results")
         label, confidence, heatmap = predict_with_heatmap(model, image)
 
-        # عرض التشخيص مع اللون المناسب
+        # Show diagnosis with appropriate color
         if confidence > 0.7:
-            st.success(f"التشخيص: {label}")
+            st.success(f"Diagnosis: {label}")
         elif confidence > 0.5:
-            st.warning(f"التشخيص: {label}")
+            st.warning(f"Diagnosis: {label}")
         else:
-            st.error(f"التشخيص: {label}")
+            st.error(f"Diagnosis: {label}")
 
-        st.metric("نسبة الثقة", f"{confidence*100:.2f}%")
+        st.metric("Confidence", f"{confidence*100:.2f}%")
         st.progress(float(confidence))
 
-        if label == "طبيعي":
-            st.info("✅ الصورة تبدو طبيعية")
+        if label == "Normal":
+            st.info("✅ The image appears normal")
         else:
-            st.warning("⚠️ يُنصح بمراجعة الطبيب")
+            st.warning("⚠️ It is recommended to consult a doctor")
 
     # ---------------------------
-    # عرض heatmap
+    # Show heatmap
     # ---------------------------
-    st.subheader("🗺️ خريطة المناطق المهمة")
+    st.subheader("🗺️ Important Areas Map")
     overlayed = overlay_heatmap(image, heatmap)
-    st.image(overlayed, caption="المناطق ذات الاحتمالية الأعلى", use_column_width=True)
-    st.caption("اللون الأحمر يشير للمناطق الأكثر أهمية")
+    st.image(overlayed, caption="Areas with Highest Probability", use_column_width=True)
+    st.caption("Red color indicates the most important regions")
 
 else:
-    st.info("👆 يرجى رفع صورة لبدء التحليل")
+    st.info("👆 Please upload an image to start analysis")
     st.image("https://via.placeholder.com/500x300?text=Upload+X-Ray+Image",
              use_column_width=True)
 
 st.markdown("---")
-st.caption("مشروع CS50 - تطبيق تحليل الصور الطبية بالذكاء الاصطناعي")
+st.caption("CS50 Project - AI-based Medical Image Analysis App")
