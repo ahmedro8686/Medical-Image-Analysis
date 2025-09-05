@@ -34,14 +34,14 @@ def predict_with_heatmap(model, image: Image.Image):
     ])
     input_tensor = preprocess(image).unsqueeze(0)
 
-    # Make prediction
+    # Prediction
     with torch.no_grad():
         output = model(input_tensor)
         probs = torch.softmax(output, dim=1)
         confidence, pred_class = torch.max(probs, dim=1)
         label = LABELS[pred_class.item()]
 
-    # Generate Grad-CAM heatmap
+    # Grad-CAM heatmap
     heatmap = grad_cam(model, input_tensor, pred_class.item())
     return label, confidence.item(), heatmap
 
