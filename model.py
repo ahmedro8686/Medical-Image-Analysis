@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 import cv2
 
-LABELS = ["طبيعي", "التهاب رئوي", "كوفيد-19", "أمراض أخرى"]
+LABELS = ["Normal", "Pneumonia", "COVID-19", "Other Diseases"]
 
 def load_model():
     try:
@@ -14,16 +14,16 @@ def load_model():
 
         try:
             model.load_state_dict(torch.load("models/xray_model.pth", map_location='cpu'))
-            print("تم تحميل النموذج المدرب بنجاح")
+            print("Trained model loaded successfully")
         except:
             model = models.resnet18(pretrained=True)
             model.fc = nn.Linear(model.fc.in_features, len(LABELS))
-            print("استخدام weights ImageNet")
+            print("Using ImageNet weights")
 
         model.eval()
         return model
     except Exception as e:
-        print(f"خطأ في تحميل النموذج: {e}")
+        print(f"Error loading model: {e}")
         return None
 
 def predict_with_heatmap(model, image: Image.Image):
@@ -34,14 +34,14 @@ def predict_with_heatmap(model, image: Image.Image):
     ])
     input_tensor = preprocess(image).unsqueeze(0)
 
-    # التنبؤ
+    # Make prediction
     with torch.no_grad():
         output = model(input_tensor)
         probs = torch.softmax(output, dim=1)
         confidence, pred_class = torch.max(probs, dim=1)
         label = LABELS[pred_class.item()]
 
-    # Grad-CAM heatmap
+    # Generate Grad-CAM heatmap
     heatmap = grad_cam(model, input_tensor, pred_class.item())
     return label, confidence.item(), heatmap
 
