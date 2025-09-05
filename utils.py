@@ -23,3 +23,4 @@ def overlay_heatmap(image: Image.Image, heatmap: np.ndarray, alpha=0.5):
         print(f"Error overlaying heatmap: {e}")
         return image
 
+
