@@ -13,8 +13,8 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🏥 Intelligent X-Ray Analysis System")
-st.markdown("### Early detection of diseases using AI")
+st.title("🏥 Smart X-Ray Analysis System")
+st.markdown("### Early disease detection using AI")
 
 # ---------------------------
 # Sidebar
@@ -25,10 +25,10 @@ with st.sidebar:
     CS50 Project:
     - X-ray image analysis
     - Detection of respiratory diseases
-    - Highlight areas of interest
-    - Confidence score
+    - Highlight important regions
+    - Confidence score for results
     """)
-    st.warning("⚠️ This is an experimental system and does not replace a doctor's diagnosis")
+    st.warning("⚠️ This is a demo system and does not replace a doctor")
 
 # ---------------------------
 # Load model (cached)
@@ -41,7 +41,7 @@ def get_model():
 model = get_model()
 
 if model is None:
-    st.error("❌ Failed to load the model. Please check the files")
+    st.error("❌ Failed to load the model. Check files")
     st.stop()
 
 # ---------------------------
@@ -56,7 +56,7 @@ uploaded_file = st.file_uploader(
 if uploaded_file:
     image = preprocess_image(uploaded_file)
     if image is None:
-        st.error("❌ Failed to process the image. Please check the file")
+        st.error("❌ Failed to process image. Check the file")
         st.stop()
 
     col1, col2 = st.columns(2)
@@ -68,7 +68,6 @@ if uploaded_file:
         st.subheader("📊 Analysis Results")
         label, confidence, heatmap = predict_with_heatmap(model, image)
 
-        # Show diagnosis with appropriate color
         if confidence > 0.7:
             st.success(f"Diagnosis: {label}")
         elif confidence > 0.5:
@@ -76,20 +75,20 @@ if uploaded_file:
         else:
             st.error(f"Diagnosis: {label}")
 
-        st.metric("Confidence", f"{confidence*100:.2f}%")
+        st.metric("Confidence Score", f"{confidence*100:.2f}%")
         st.progress(float(confidence))
 
         if label == "Normal":
-            st.info("✅ The image appears normal")
+            st.info("✅ The image looks normal")
         else:
             st.warning("⚠️ It is recommended to consult a doctor")
 
     # ---------------------------
-    # Show heatmap
+    # Display heatmap
     # ---------------------------
-    st.subheader("🗺️ Important Areas Map")
+    st.subheader("🗺️ Important Regions Map")
     overlayed = overlay_heatmap(image, heatmap)
-    st.image(overlayed, caption="Areas with Highest Probability", use_column_width=True)
+    st.image(overlayed, caption="Highest probability regions", use_column_width=True)
     st.caption("Red color indicates the most important regions")
 
 else:
@@ -98,4 +97,5 @@ else:
              use_column_width=True)
 
 st.markdown("---")
-st.caption("CS50 Project - AI-based Medical Image Analysis App")
+st.caption("CS50 Project - AI-based Medical Image Analysis")
+
